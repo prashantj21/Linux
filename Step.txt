@@ -1,0 +1,125 @@
+We are provide the all steps
+
+Install Monitoring Tools
+sudo apt update
+sudo apt install htop -y
+
+Monitor Disk Usage
+df -h
+du -sh /var/*
+
+Identify Resource Intensive Processes
+top
+Save System Metrics to Log File
+
+sudo mkdir /var/log/system_monitor
+
+sudo nano monitor.sh
+
+
+#!/bin/bash
+
+echo "System Monitoring Report - $(date)" >> /var/log/system_monitor/report.log
+
+echo "CPU & Memory Usage:" >> /var/log/system_monitor/report.log
+top -b -n1 | head -10 >> /var/log/system_monitor/report.log
+
+echo "Disk Usage:" >> /var/log/system_monitor/report.log
+df -h >> /var/log/system_monitor/report.log
+
+echo "Directory Sizes:" >> /var/log/system_monitor/report.log
+du -sh /var/* >> /var/log/system_monitor/report.log
+
+echo "-----------------------------------" >> /var/log/system_monitor/report.log
+
+giving permission
+
+ chmod +x monitor.sh
+
+run the code
+./monitor.sh
+
+
+create user (Sarah)
+
+sudo useradd -m Sarah
+sudo passwd Sarah
+
+
+create user (mike)
+sudo useradd -m mike
+sudo passwd mike
+
+
+create workspace 
+sudo mkdir /home/Sarah/workspace
+sudo mkdir /home/mike/workspace
+
+Assign Ownership:
+sudo chown Sarah:Sarah /home/Sarah/workspace
+sudo chown mike:mike /home/mike/workspace
+
+set permission:
+sudo chmod 755 /home/Sarah/workspace
+sudo chmod 755 /home/mike/workspace
+
+Create backup dire and assign permission
+
+sudo mkdir /backups
+sudo chmod 755 /backups
+
+create apache backup .script
+
+sudo nano apache_backup.sh (Sarah user)
+
+#!/bin/bash
+
+DATE=$(date +%F)
+
+BACKUP_FILE="/backups/apache_backup_$DATE.tar.gz"
+
+tar -czvf $BACKUP_FILE /etc/httpd /var/www/html
+
+echo "Backup Created: $BACKUP_FILE" >> /backups/backup_log.txt
+
+echo "Verifying backup:" >> /backups/backup_log.txt
+tar -tzf $BACKUP_FILE >> /backups/backup_log.txt
+
+assign permission :
+
+chmod +x apache_backup.sh
+
+(Mike) backupscript
+
+sudo nano nginx_backup.sh
+
+script :
+ #!/bin/bash
+
+DATE=$(date +%F)
+
+BACKUP_FILE="/backups/nginx_backup_$DATE.tar.gz"
+
+tar -czvf $BACKUP_FILE /etc/nginx /usr/share/nginx/html
+
+echo "Backup Created: $BACKUP_FILE" >> /backups/backup_log.txt
+
+echo "Verifying backup:" >> /backups/backup_log.txt
+tar -tzf $BACKUP_FILE >> /backups/backup_log.txt
+
+
+sudo chmod +x nginx_backup.sh
+
+Schedule Cron Jobs
+
+crontab -e
+
+0 0 * * 2 /path/apache_backup.sh
+0 0 * * 2 /path/nginx_backup.sh 
+
+Check backups:
+
+ls -ltr /backups
+
+
+
